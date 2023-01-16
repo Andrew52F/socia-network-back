@@ -1,9 +1,12 @@
 import express from "express";
 import mongoose from "mongoose";
+
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import multer from 'multer';
 import cors from 'cors';
+import authErrorsMiddleware from "./middlewares/authErrorsMiddleware.js";
+
 import * as dotenv from 'dotenv';
 
 import authRouter from './routes/authorization.js';
@@ -18,13 +21,24 @@ const app = express();
 // middleware
 app.use(cors());
 app.use(bodyParser.json());
-// app.use(cookieParser());
+app.use(cookieParser());
 
 // app.use(
 //   express.urlencoded({
 //     extended: true,
 //   })
 // )
+
+//routes
+app.use('/auth', authRouter);
+app.use('/posts', postsRouter)
+
+app.get('/', (req, res) => {
+  res.send('this is root route')
+})
+
+//errorMiddleware
+app.use(authErrorsMiddleware);
 
 const start = async () => {
   try {
@@ -37,16 +51,6 @@ const start = async () => {
   }
 }
 
-//routes
 
-app.use('/auth', authRouter);
-
-app.use('/posts', postsRouter)
-
-
-
-app.get('/', (req, res) => {
-  res.send('this is root route')
-})
 
 start();
