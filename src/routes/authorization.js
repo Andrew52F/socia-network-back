@@ -20,7 +20,8 @@ router.get('/activate/:link', AuthController.activate);
 
 router.get('/refresh', AuthController.refresh);
 
-router.get('/users', rolesMiddleware(['ADMIN']), AuthController.getUsers)
+router.get('/users', [authMiddleware],  AuthController.getUsers)
+// router.get('/users', rolesMiddleware(['ADMIN']), AuthController.getUsers)
 
 
 export default router;

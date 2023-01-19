@@ -55,8 +55,9 @@ class AuthUserService {
     return { ...tokens, user: userDto };
   }
   
-  async logout() {
-
+  async logout(refreshToken) {
+    const token = await TokenService.removeToken(refreshToken);
+    return token;
   }
   
   async activate(activationLink) {
@@ -68,8 +69,29 @@ class AuthUserService {
     user.isActivated = true;
     await user.save();
   }
-  async refresh() {
+  async refresh(refreshToken) {
+    if (!refreshToken) {
+      throw AuthError.UnauthorizedError();
+    }
+    const userData = TokenService.validateRefreshToken(refreshToken);
+    const refreshTokenFromDb = await TokenService.findToken(refreshToken);
 
+    if (!userData || !refreshTokenFromDb) {
+      throw AuthError.UnauthorizedError();
+    }
+
+    const user = await AuthUser.findById(userData.id);
+    const userDto = new UserDto(user);
+    const tokens = TokenService.generateTokens({...userDto});
+    await TokenService.saveToken(userDto.id, tokens.refreshToken);
+
+    return { ...tokens, user: userDto };
+  }
+
+
+  async getAllUsers() {
+    const users = await AuthUser.find();
+    return users;
   }
 
 

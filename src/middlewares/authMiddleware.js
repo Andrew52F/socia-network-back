@@ -1,4 +1,6 @@
 import jsonwebtoken from "jsonwebtoken";
+import AuthError from "../exceptions/authError.js";
+import TokenService from "../services/TokenService.js";
 
 const authMiddleware = (req, res, next) => {
   if (req.method === 'OPTIONS') {
@@ -6,17 +8,24 @@ const authMiddleware = (req, res, next) => {
   }
 
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    if (!token) {
-      return res.status(403).json({message: 'User is not authorized'})
+    const authorizationHeader = req.headers.authorization;
+    if (!authorizationHeader) {
+      return next(AuthError.UnauthorizedError());
     }
-    const decodedData = jsonwebtoken.verify(token, process.env.JWT_SECRET);
+    const accessToken = authorizationHeader.split(' ')[1];
+    if (!accessToken) {
+      return next(AuthError.UnauthorizedError());
+    }
+    const decodedData = TokenService.validateAccessToken(accessToken);
+    if (!decodedData) {
+      return next(AuthError.UnauthorizedError());
+    }
+
     req.user = decodedData;
     next();
   }
   catch (error) {
-    console.log(error);
-    return res.status(403).json({message: 'User is not authorized'})
+    return next(AuthError.UnauthorizedError());
   }
 
 

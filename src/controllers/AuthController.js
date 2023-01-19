@@ -42,7 +42,10 @@ class AuthController {
 
   async logout (req, res, next)  {
     try {
-
+      const { refreshToken } = req.cookies;
+      const token = await AuthUserService.logout(refreshToken);
+      res.clearCookie('refreshToken');
+      return res.json(token);
     }
     catch(error) {
       next(error)
@@ -62,7 +65,12 @@ class AuthController {
 
   async refresh (req, res, next)  {
     try {
+      const { refreshToken } = req.cookies;
 
+      const authUserData = await AuthUserService.refresh(refreshToken);
+
+      res.cookie('refreshToken', authUserData.refreshToken, {maxAge: 30*24*60*60*1000, httpOnly: true});
+      return res.json(authUserData);
     }
     catch(error) {
       next(error)
@@ -73,9 +81,8 @@ class AuthController {
 
   async getUsers ( req, res ) {
     try {
-      const users = await User.find();
-
-      res.json(users);
+      const users = await AuthUserService.getAllUsers();
+      return res.json(users);
     }
     catch (error) {
       next(error)

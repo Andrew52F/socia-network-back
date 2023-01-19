@@ -6,6 +6,7 @@ const AuthUserSchema = new Schema({
   roles: [{type: String, ref: 'Role' }],
   isActivated: {type: Boolean, default: false},
   activationLink: {type: String, required: true},
+  registrationDate: {type: Date, default: Date.now},
 })
 
 export default model('AuthUser', AuthUserSchema);
