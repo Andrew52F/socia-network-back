@@ -1,18 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 
 
-const PostSchema = new Schema({
+const CommentSchema = new Schema({
   authorId: {type: Schema.Types.ObjectId, ref: 'User'},
-  pageId: {type: Schema.Types.ObjectId, ref: 'Page', required: false},
+  postId: {type: Schema.Types.ObjectId, ref: 'Post'},
   text: { type: String, required: true },
   imageId: {type: Schema.Types.ObjectId, ref: 'Image', required: false},
   likedUsersId: [{type: Schema.Types.ObjectId, ref: 'User'}],
   dislikedUsersId: [{type: Schema.Types.ObjectId, ref: 'User'}],
 
-  // commentsId: [{type: Schema.Types.ObjectId, ref: 'Comment'}],
   date: { type: Date, default: Date.now },
 
 
 })
 
-export default mongoose.model('Post', PostSchema);
+export default mongoose.model('Comment', CommentSchema);

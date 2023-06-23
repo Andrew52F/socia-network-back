@@ -1,12 +1,11 @@
-//data transfer object
 export default class UserDto {
-  email;
   id;
-  isActivated;
+  username;
+  image;
 
-  constructor(model) {
-    this.email = model.email;
-    this.id = model._id;
-    this.isActivated = model.isActivated;
+  constructor(userModel, imageModel) {
+    this.id = userModel.id
+    this.username = userModel.username;
+    (imageModel &&  (this.image = imageModel.url))
   }
 }

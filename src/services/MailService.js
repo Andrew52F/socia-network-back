@@ -58,5 +58,3 @@ class MailService {
   }
 }
 export default new MailService();
-// 724804446747-8chdeve9lusr9r4b9h1hvistvriqgn85.apps.googleusercontent.com
-// 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

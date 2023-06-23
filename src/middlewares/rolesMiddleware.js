@@ -1,27 +1,28 @@
-import jsonwebtoken from "jsonwebtoken";
+import AuthError from "../exceptions/authError.js";
 
-const rolesMiddleware = (roles) => (req, res, next) => {
+const rolesMiddleware = (...roles) => (req, res, next) => {
   if (req.method === 'OPTIONS') {
     next();
   }
 
   try {
-    const token = req.headers.authorization.split(' ')[1];
-    if (!token) {
-      return res.status(403).json({message: 'User is not authorized'})
-    }
-    const { roles: userRoles} = jsonwebtoken.verify(token, process.env.JWT_SECRET);
-    let hasRole = false;
-    console.log(roles, userRoles)
-    console.log(roles.includes(userRoles[0]))
-    userRoles.forEach(role => {
+    const authUser = req.authUser;
+    console.log('ROLES: ', authUser)
+
+    // const authorizationHeader = req.headers.authorization;
+    // const accessToken = authorizationHeader.split(' ')[1];
+    // const decodedData = TokenService.validateAccessToken(accessToken);
+
+    let access = false;
+    authUser.roles.forEach(role => {
       if (roles.includes(role)) {
-        hasRole = true;
+        access = true;
       }
-    });
-    if (!hasRole) {
-      return res.status(403).json({message: 'Access denied'})
+    }) 
+    if (!access) {
+      return next(AuthError.IsForbidden(authUser.roles));
     }
+    
     next();
   }
   catch (error) {

@@ -3,7 +3,7 @@ import RefreshToken from "../models/RefreshToken.js";
 
 class TokenService {
   generateTokens( payload ) {
-    const accessToken = jsonwebtoken.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '5m'});
+    const accessToken = jsonwebtoken.sign(payload, process.env.JWT_ACCESS_SECRET, {expiresIn: '30m'});
     const refreshToken = jsonwebtoken.sign(payload, process.env.JWT_REFRESH_SECRET, {expiresIn: '30d'});
     return {accessToken, refreshToken}
   }
@@ -14,6 +14,7 @@ class TokenService {
       return userData;
     }
     catch (error) {
+      console.log('VALIDATE ACCESS ERROR ', error)
       return null;
     }
   }
@@ -29,14 +30,14 @@ class TokenService {
   }
 
   async saveToken(userId, refreshToken) {
-    const tokenData = await RefreshToken.findOne({user: userId});
+    const tokenData = await RefreshToken.findById(userId);
 
     if (tokenData) {
       tokenData.refreshToken = refreshToken;
       return tokenData.save();
     }
 
-    const token = await RefreshToken.create({user: userId, refreshToken})
+    const token = await RefreshToken.create({_id: userId, refreshToken})
   }
 
   async findToken(refreshToken) {

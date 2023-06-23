@@ -12,6 +12,13 @@ class AuthError extends Error {
     return new AuthError(401, 'User is not authorized')
   }
 
+  static NotActivated() {
+    return new AuthError(450, 'Users email is not activated');
+  }
+  static IsForbidden(roles) {
+    return new AuthError(403, `Access is forbidden. Your roles: ${roles.join(', ')}. `);
+  }
+
   static BadRequest(message, errors = []) {
     return new AuthError(400, message, errors)
   }

@@ -1,8 +1,9 @@
-import jsonwebtoken from "jsonwebtoken";
 import AuthError from "../exceptions/authError.js";
-import TokenService from "../services/TokenService.js";
+import UserError from "../exceptions/usersError.js";
+import tokenService from "../services/tokenService.js";
+import User from "../models/User.js";
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   if (req.method === 'OPTIONS') {
     next();
   }
@@ -10,18 +11,33 @@ const authMiddleware = (req, res, next) => {
   try {
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
+      console.log('NO HEADER')
       return next(AuthError.UnauthorizedError());
     }
     const accessToken = authorizationHeader.split(' ')[1];
     if (!accessToken) {
+      console.log('NO ACCESS TOKEN')
       return next(AuthError.UnauthorizedError());
     }
-    const decodedData = TokenService.validateAccessToken(accessToken);
+    const decodedData = tokenService.validateAccessToken(accessToken);
     if (!decodedData) {
+      console.log('NO DECODED DATA: ', decodedData)
       return next(AuthError.UnauthorizedError());
     }
+    if (!decodedData.isActivated) {
+      console.log('NOT ACTIVATED')
+      return next(AuthError.NotActivated());
+    }
+    // const user = await User.findOne({user: decodedData.id});
+    // if (!user) {
+    //   console.log('NO USER PROFILE')
+    //   return next(UserError.NotFound())
+    // }
 
-    req.user = decodedData;
+
+    req.authUser = decodedData;
+
+    console.log('AUTHORIZED USER: ', decodedData)
     next();
   }
   catch (error) {
